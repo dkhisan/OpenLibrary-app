@@ -1,4 +1,11 @@
-import { ajax, setCookies, removeCookies } from "@/assets/js/functions";
+import {
+  ajax,
+  hasCookies,
+  getCookies,
+  setCookies,
+  setHeaders,
+  removeCookies
+} from "@/assets/js/functions";
 
 export default {
   login({ commit }, user) {
@@ -34,5 +41,20 @@ export default {
           reject(err);
         });
     });
+  },
+  initialize({ commit }) {
+    if (hasCookies()) {
+      const cookies = getCookies();
+      const { accessToken } = cookies;
+      setHeaders({ accessToken });
+      ajax("//localhost:8001/api/v1/auth/verify")
+        .then(loggedUser => {
+          commit("init", { accessToken, loggedUser });
+        })
+        .catch(err => {
+          commit("logOut");
+          removeCookies();
+        });
+    }
   }
 };

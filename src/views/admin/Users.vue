@@ -1,9 +1,9 @@
 <template>
-  <h3>Books view</h3>
+  <h3>Users view</h3>
 </template>
 
 <script>
 export default {
-  name: "AdminViewBooks"
+  name: "AdminViewUsers"
 };
 </script>

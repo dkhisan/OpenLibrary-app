@@ -10,7 +10,7 @@
             <sidebar />
           </div>
           <div class="column is-8">
-            <router-view name="admin.views" />
+            <router-view />
           </div>
         </div>
       </div>

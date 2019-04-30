@@ -19,17 +19,17 @@ const r = new Router({
           path: "/redir",
           redirect: () => {
             try {
-              const { user } = getCookies();
-              const { role } = user;
+              const { loggedUser } = getCookies();
+              const { role } = loggedUser;
+
               if (role === "leitor") {
                 return "/main";
               } else if (role === "atendente") {
                 return "/manage";
               }
-
               return "/admin";
             } catch (e) {
-              return "/login";
+              return "/";
             }
           }
         },
@@ -39,16 +39,50 @@ const r = new Router({
           component: () => import("@/views/main/Home.vue")
         },
         {
+          path: "/manage",
+          meta: { role: "atendente" }
+        },
+        {
           path: "/admin",
-          name: "admin.dir",
           meta: { role: "administrador" },
-          component: () => import("@/views/admin/Home.vue")
+          component: () =>
+            import(/* webpackChunkName: 'admin' */ "@/views/admin/Home.vue"),
+          children: [
+            {
+              path: "dashboard",
+              name: "admin.view.dash",
+              meta: { role: "administrador" },
+              component: () =>
+                import(
+                  /* webpackChunkName: 'admin' */ "@/views/admin/Dashboard.vue"
+                )
+            },
+            {
+              path: "books",
+              name: "admin.view.books",
+              meta: { role: "administrador" },
+              component: () =>
+                import(
+                  /* webpackChunkName: 'admin' */ "@/views/admin/Books.vue"
+                )
+            },
+            {
+              path: "users",
+              name: "admin.view.users",
+              meta: { role: "administrador" },
+              component: () =>
+                import(
+                  /* webpackChunkName: 'admin' */ "@/views/admin/Users.vue"
+                )
+            }
+          ]
         }
       ]
     },
     {
       path: "/login",
       name: "login",
+      props: true,
       meta: { authentication: false },
       component: () => import("@/views/Login.vue")
     }
@@ -63,14 +97,20 @@ r.beforeEach((to, from, next) => {
         query: { next: to.fullPath }
       });
     }
+  } else {
+    // se a url solicitada não pode ser acessada
+    // usando auth então redirecione para '/'.
+    next("/");
   }
 
+  // verifica se o usuário conectado faz parte
+  // do grupo para acessar a página.
   if (to.matched.some(rec => rec.meta.role)) {
-    const { role } = getCookies();
+    const { loggedUser } = getCookies();
+    const { role } = loggedUser;
     const access = to.meta.role;
-
-    if (role === access) {
-      next(to.path);
+    if (role !== access) {
+      next("/");
     }
   }
 

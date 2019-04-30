@@ -1,5 +1,3 @@
-import { hasCookies, getCookies } from "@/assets/js/functions";
-
 export default {
   setToken: (state, token) => {
     state.accessToken = token;
@@ -11,12 +9,8 @@ export default {
     state.accessToken = {};
     state.loggedUser = {};
   },
-  init: state => {
-    if (hasCookies()) {
-      const cookies = getCookies();
-
-      state.accessToken = cookies.token;
-      state.loggedUser = cookies.user;
-    }
+  init: (state, cookies) => {
+    state.accessToken = cookies.token;
+    state.loggedUser = cookies.user;
   }
 };

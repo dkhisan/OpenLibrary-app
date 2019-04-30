@@ -4,9 +4,6 @@
  * This is a part of Open Library.
  */
 
-import axios from "axios";
-import _ from "lodash";
-
 /**
  * Método de requisição ou consumo de páginas usando AJAX.
  * @param {String} url Link para fazer a requisição.
@@ -43,10 +40,10 @@ export function hasCookies() {
  * @returns {Object} Objeto contendo os dados 'token' e 'usuário'.
  */
 export function getCookies() {
-  const token = JSON.parse(window.localStorage.getItem("accessToken"));
-  const user = JSON.parse(window.localStorage.getItem("loggedUser"));
+  const accessToken = window.localStorage.getItem("accessToken");
+  const loggedUser = JSON.parse(window.localStorage.getItem("loggedUser"));
 
-  return { token, user };
+  return { accessToken, loggedUser };
 }
 
 /**
@@ -54,21 +51,29 @@ export function getCookies() {
  * @param {Object} param0 Objeto contendo 'token' e 'user'.
  */
 export function setCookies({ accessToken, loggedUser }) {
-  const token = JSON.stringify(accessToken.token);
+  const token = accessToken.token;
   const type = accessToken.type;
   const expires = accessToken.expires;
   const user = JSON.stringify(loggedUser);
-
-  axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
   window.localStorage.setItem("accessToken", token);
   window.localStorage.setItem("tokenType", type);
   window.localStorage.setItem("expiresIn", expires);
   window.localStorage.setItem("loggedUser", user);
+
+  setHeaders({ accessToken: token });
+}
+
+export function setHeaders(headers) {
+  axios.defaults.headers.common["Authorization"] = `Bearer ${
+    headers.accessToken
+  }`;
 }
 
 export function removeCookies() {
   window.localStorage.removeItem("accessToken");
+  window.localStorage.removeItem("tokenType");
+  window.localStorage.removeItem("expiresIn");
   window.localStorage.removeItem("loggedUser");
 
   axios.defaults.headers.common["Authorization"] = null;

@@ -5,16 +5,16 @@
         <div class="column is-4 is-offset-4">
           <h3 class="title has-text-grey">Open Library</h3>
           <p class="subtitle has-text-grey">###</p>
-          <b-message v-if="response.message" :type="response.type">
-            {{ response.message }}
-          </b-message>
+          <b-message v-if="response" :type="response.type">{{
+            response.message
+          }}</b-message>
           <form @submit.prevent="validate" autocomplete="off">
             <b-field :message="errors.email">
               <b-input
                 v-model="account.email"
                 placeholder="Email"
                 size="is-large"
-                icon="account"
+                icon="account-circle"
                 type="email"
                 required
               />
@@ -50,7 +50,6 @@ import { Input } from "buefy/dist/components/input";
 import { Message } from "buefy/dist/components/message";
 
 import { mapActions } from "vuex";
-import _ from "lodash";
 
 export default {
   name: "Login",
@@ -59,6 +58,12 @@ export default {
     BField: Field,
     BInput: Input,
     BMessage: Message
+  },
+  props: {
+    message: Object
+  },
+  created() {
+    this.response = this.message;
   },
   data() {
     return {
@@ -72,7 +77,7 @@ export default {
     ...mapActions(["login"]),
     validate() {
       const required = "O campo deve ser preenchido.";
-      this.response = {};
+      this.response = null;
 
       if (this.account && !this.account.email) {
         this.errors.email = required;

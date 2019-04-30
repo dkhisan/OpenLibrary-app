@@ -13,6 +13,6 @@ new Vue({
   store,
   render: h => h(App),
   beforeCreate() {
-    this.$store.commit("init");
+    store.dispatch("initialize");
   }
 }).$mount("#app");
