@@ -12,7 +12,7 @@
  * @param {String} index Query ou subdiretórios como 'id' de um contéudo em específico.
  * @returns {Promise} Resposta da Promise.
  */
-export function ajax(url, data, method = "get", index = "") {
+export function ajax(url, data = null, method = "get", index = "") {
   return new Promise((resolve, reject) => {
     window.axios[method](url + index, data)
       .then(res => {

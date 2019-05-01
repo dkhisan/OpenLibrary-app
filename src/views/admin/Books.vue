@@ -1,4 +1,4 @@
-<template xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
+<template>
   <section>
     <b-table
       :data="books"
@@ -27,10 +27,33 @@
         <b-table-column label="Ações" centered>
           <div class="level">
             <div class="level-item">
-              <b-button icon-left="file-document-edit-outline" size="is-small" />
+              <b-tooltip
+                label="Editar livro"
+                type="is-dark"
+                position="is-left"
+                animated
+              >
+                <b-button
+                  icon-left="file-document-edit-outline"
+                  size="is-small"
+                  @click="openBookEditModal(props.row)"
+                />
+              </b-tooltip>
             </div>
             <div class="level-item">
-              <b-button type="is-danger" icon-left="trash-can-outline" size="is-small" />
+              <b-tooltip
+                label="Remover livro"
+                type="is-dark"
+                position="is-left"
+                animated
+              >
+                <b-button
+                  type="is-danger"
+                  icon-left="trash-can-outline"
+                  size="is-small"
+                  @click="confirmDelete(props.row)"
+                />
+              </b-tooltip>
             </div>
           </div>
         </b-table-column>
@@ -41,17 +64,21 @@
 
 <script>
 import { Button } from "buefy/dist/components/button";
-import { Icon } from "buefy/dist/components/icon";
+import { Dialog } from "buefy/dist/components/dialog";
+import { ModalProgrammatic } from "buefy/dist/components/modal";
 import { Table, TableColumn } from "buefy/dist/components/table";
+import { Toast } from "buefy/dist/components/toast";
+import { Tooltip } from "buefy/dist/components/tooltip";
 import { ajax } from "@/assets/js/functions";
+import Form from "@/components/admin/BookEditForm";
 
 export default {
   name: "AdminViewBooks",
   components: {
     BButton: Button,
-    BIcon: Icon,
     BTable: Table,
-    BTableColumn: TableColumn
+    BTableColumn: TableColumn,
+    BTooltip: Tooltip
   },
   created() {
     this.fetchBooks();
@@ -60,7 +87,8 @@ export default {
     return {
       loading: true,
       books: [],
-      pagination: {}
+      pagination: {},
+      response: {}
     };
   },
   methods: {
@@ -81,6 +109,48 @@ export default {
         })
         .finally(() => {
           this.loading = false;
+        });
+    },
+    openBookEditModal(book) {
+      ModalProgrammatic.open({
+        parent: this,
+        component: Form,
+        props: { book },
+        events: {
+          reload: async () => {
+            await this.fetchBooks();
+          }
+        },
+        hasModalCard: true,
+        canCancel: false
+      });
+    },
+    confirmDelete(book) {
+      Dialog.confirm({
+        message: `Tem certeza de que quer apagar "${book.title}"?`,
+        cancelText: "Não",
+        confirmText: "Sim",
+        onConfirm: async () => {
+          await this.deleteBook(book.id);
+        }
+      });
+    },
+    deleteBook(id) {
+      ajax("//localhost:8000/api/v1/books/" + id, null, "delete")
+        .then(() => {
+          this.fetchBooks();
+        })
+        .then(() => {
+          Toast.open({
+            message: "O registro foi apagado.",
+            type: "is-success"
+          });
+        })
+        .catch(err => {
+          Toast.open({
+            message: err,
+            type: "is-danger"
+          });
         });
     }
   }
