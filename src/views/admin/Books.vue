@@ -69,6 +69,7 @@ import { ModalProgrammatic } from "buefy/dist/components/modal";
 import { Table, TableColumn } from "buefy/dist/components/table";
 import { Toast } from "buefy/dist/components/toast";
 import { Tooltip } from "buefy/dist/components/tooltip";
+
 import { ajax } from "@/assets/js/functions";
 import Form from "@/components/admin/BookEditForm";
 

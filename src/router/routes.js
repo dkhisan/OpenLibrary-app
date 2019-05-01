@@ -41,6 +41,10 @@ export default [
           import(/* webpackChunkName: 'admin' */ "@/views/admin/Home.vue"),
         children: [
           {
+            path: "",
+            redirect: "dashboard"
+          },
+          {
             path: "dashboard",
             name: "admin.view.dash",
             meta: { role: "administrador" },
