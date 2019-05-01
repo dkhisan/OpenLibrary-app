@@ -1,6 +1,7 @@
 import Vue from "vue";
 import Router from "vue-router";
 import { hasCookies, getCookies } from "@/assets/js/functions";
+import routes from "./routes";
 
 Vue.use(Router);
 
@@ -8,85 +9,7 @@ const r = new Router({
   linkActiveClass: "is-active",
   mode: "history",
   base: process.env.BASE_URL,
-  routes: [
-    {
-      path: "/",
-      meta: { authentication: true },
-      redirect: "redir",
-      component: () => import("@/App.vue"),
-      children: [
-        {
-          path: "/redir",
-          redirect: () => {
-            try {
-              const { loggedUser } = getCookies();
-              const { role } = loggedUser;
-
-              if (role === "leitor") {
-                return "/main";
-              } else if (role === "atendente") {
-                return "/manage";
-              }
-              return "/admin";
-            } catch (e) {
-              return "/";
-            }
-          }
-        },
-        {
-          path: "/main",
-          meta: { role: "leitor" },
-          component: () => import("@/views/main/Home.vue")
-        },
-        {
-          path: "/manage",
-          meta: { role: "atendente" }
-        },
-        {
-          path: "/admin",
-          meta: { role: "administrador" },
-          component: () =>
-            import(/* webpackChunkName: 'admin' */ "@/views/admin/Home.vue"),
-          children: [
-            {
-              path: "dashboard",
-              name: "admin.view.dash",
-              meta: { role: "administrador" },
-              component: () =>
-                import(
-                  /* webpackChunkName: 'admin' */ "@/views/admin/Dashboard.vue"
-                )
-            },
-            {
-              path: "books",
-              name: "admin.view.books",
-              meta: { role: "administrador" },
-              component: () =>
-                import(
-                  /* webpackChunkName: 'admin' */ "@/views/admin/Books.vue"
-                )
-            },
-            {
-              path: "users",
-              name: "admin.view.users",
-              meta: { role: "administrador" },
-              component: () =>
-                import(
-                  /* webpackChunkName: 'admin' */ "@/views/admin/Users.vue"
-                )
-            }
-          ]
-        }
-      ]
-    },
-    {
-      path: "/login",
-      name: "login",
-      props: true,
-      meta: { authentication: false },
-      component: () => import("@/views/Login.vue")
-    }
-  ]
+  routes
 });
 
 r.beforeEach((to, from, next) => {
@@ -100,17 +23,21 @@ r.beforeEach((to, from, next) => {
   } else {
     // se a url solicitada não pode ser acessada
     // usando auth então redirecione para '/'.
-    next("/");
+    // next("/");
   }
 
   // verifica se o usuário conectado faz parte
   // do grupo para acessar a página.
   if (to.matched.some(rec => rec.meta.role)) {
-    const { loggedUser } = getCookies();
-    const { role } = loggedUser;
-    const access = to.meta.role;
-    if (role !== access) {
-      next("/");
+    try {
+      const { loggedUser } = getCookies();
+      const { role } = loggedUser;
+      const access = to.meta.role;
+      if (role !== access) {
+        next("/");
+      }
+    } catch (e) {
+      // next("/");
     }
   }
 

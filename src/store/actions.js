@@ -10,7 +10,7 @@ import {
 export default {
   login({ commit }, user) {
     return new Promise(async (resolve, reject) => {
-      await ajax("//localhost:8001/api/v1/auth/login", user, "post")
+      await ajax("//localhost:8000/api/v1/auth/login", user, "post")
         .then(res => {
           const accessToken = {
             token: res.access_token,
@@ -31,7 +31,7 @@ export default {
   },
   logout({ commit }) {
     return new Promise(async (resolve, reject) => {
-      await ajax("//localhost:8001/api/v1/auth/logout", null, "post")
+      await ajax("//localhost:8000/api/v1/auth/logout", null, "post")
         .then(({ message }) => {
           commit("logOut");
           removeCookies();
@@ -47,11 +47,11 @@ export default {
       const cookies = getCookies();
       const { accessToken } = cookies;
       setHeaders({ accessToken });
-      ajax("//localhost:8001/api/v1/auth/verify")
+      ajax("//localhost:8000/api/v1/auth/verify")
         .then(loggedUser => {
           commit("init", { accessToken, loggedUser });
         })
-        .catch(err => {
+        .catch(() => {
           commit("logOut");
           removeCookies();
         });

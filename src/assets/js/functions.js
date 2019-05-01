@@ -14,7 +14,7 @@
  */
 export function ajax(url, data, method = "get", index = "") {
   return new Promise((resolve, reject) => {
-    axios[method](url + index, data)
+    window.axios[method](url + index, data)
       .then(res => {
         resolve(res.data);
       })
@@ -32,7 +32,7 @@ export function hasCookies() {
   const token = window.localStorage.getItem("accessToken") || null;
   const user = window.localStorage.getItem("loggedUser") || null;
 
-  return !_.isEmpty(token || user);
+  return !window._.isEmpty(token || user);
 }
 
 /**
@@ -65,7 +65,7 @@ export function setCookies({ accessToken, loggedUser }) {
 }
 
 export function setHeaders(headers) {
-  axios.defaults.headers.common["Authorization"] = `Bearer ${
+  window.axios.defaults.headers.common["Authorization"] = `Bearer ${
     headers.accessToken
   }`;
 }
@@ -76,5 +76,5 @@ export function removeCookies() {
   window.localStorage.removeItem("expiresIn");
   window.localStorage.removeItem("loggedUser");
 
-  axios.defaults.headers.common["Authorization"] = null;
+  window.axios.defaults.headers.common["Authorization"] = null;
 }

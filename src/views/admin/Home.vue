@@ -6,10 +6,10 @@
     <section class="section">
       <div class="container">
         <div class="columns">
-          <div class="column is-4">
+          <div class="column is-3">
             <sidebar />
           </div>
-          <div class="column is-8">
+          <div class="column is-9">
             <router-view />
           </div>
         </div>

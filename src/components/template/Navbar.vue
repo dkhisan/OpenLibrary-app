@@ -1,7 +1,9 @@
 <template>
   <nav class="navbar is-spaced is-dark">
     <div class="container">
-      <div class="navbar-brand"># logo #</div>
+      <div class="navbar-brand">
+        <span class="navbar-item">###</span>
+      </div>
       <div class="navbar-menu">
         <div class="navbar-start">
           <router-link
@@ -9,7 +11,7 @@
             class="navbar-item"
             exact
           >
-            <b-icon icon="home" />
+            <b-icon icon="home" size="is-small" />
             <span>Home</span>
           </router-link>
           <router-link
@@ -17,7 +19,7 @@
             class="navbar-item"
             exact
           >
-            <b-icon icon="book-multiple" />
+            <b-icon icon="book-multiple" size="is-small" />
             <span>Livros</span>
           </router-link>
           <router-link
@@ -25,7 +27,7 @@
             class="navbar-item"
             exact
           >
-            <b-icon icon="account-group" />
+            <b-icon icon="account-group" size="is-small" />
             <span>Usuários</span>
           </router-link>
         </div>
@@ -35,8 +37,9 @@
             type="is-text"
             :loading="loading"
             @click="confirmLogout"
-            >Sair</b-button
           >
+            <span>Sair</span>
+          </b-button>
         </div>
       </div>
     </div>
