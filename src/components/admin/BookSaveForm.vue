@@ -2,7 +2,7 @@
   <div class="modal-card">
     <form @submit.prevent="validate" autocomplete="off">
       <header class="modal-card-head">
-        {{ book.title }}
+        {{ modalTitle }}
       </header>
       <section class="modal-card-body">
         <b-field>
@@ -76,17 +76,27 @@ export default {
     BInput: Input
   },
   props: {
+    method: {
+      type: String,
+      required: true
+    },
     book: {
       type: Object,
-      required: true
+      required: false
     }
   },
   created() {
-    this.bookUp = Object.assign({}, this.book);
+    if (this.book) {
+      this.bookUp = Object.assign({}, this.book);
+      this.modalTitle = this.book.title;
+    } else {
+      this.modalTitle = "Cadastrar livro";
+    }
   },
   data() {
     return {
       loading: false,
+      modalTitle: "",
       bookUp: {},
       errors: {}
     };
@@ -110,10 +120,15 @@ export default {
     },
     saveBook() {
       this.loading = true;
-      ajax("//localhost:8000/api/v1/books/", this.bookUp, "put", this.book.id)
+      const index = this.method === "post" ? "" : `/${this.book.id}`;
+      ajax("//localhost:8000/api/v1/books", this.bookUp, this.method, index)
         .then(() => {
+          const message =
+            this.method === "post"
+              ? "Cadastro realizado"
+              : "Informações do livro atualizas";
           Toast.open({
-            message: "As informações do livro foram atualizadas.",
+            message,
             type: "is-success"
           });
         })

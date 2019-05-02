@@ -3,7 +3,11 @@
     <nav class="navbar">
       <div class="navbar-menu">
         <div class="navbar-start">
-          <b-input placeholder="Título do livro" icon="magnify" @input="capture" />
+          <b-input
+            placeholder="Título do livro"
+            icon="magnify"
+            @input="capture"
+          />
         </div>
         <div class="navbar-end">
           <b-button
@@ -40,37 +44,17 @@
           {{ props.row.year }}
         </b-table-column>
         <b-table-column label="Ações" centered>
-          <div class="level">
-            <div class="level-item">
-              <b-tooltip
-                label="Editar livro"
-                type="is-dark"
-                position="is-left"
-                animated
-              >
-                <b-button
-                  icon-left="file-document-edit-outline"
-                  size="is-small"
-                  @click="openBookEditModal(props.row)"
-                />
-              </b-tooltip>
-            </div>
-            <div class="level-item">
-              <b-tooltip
-                label="Remover livro"
-                type="is-dark"
-                position="is-left"
-                animated
-              >
-                <b-button
-                  type="is-danger"
-                  icon-left="trash-can-outline"
-                  size="is-small"
-                  @click="confirmDelete(props.row)"
-                />
-              </b-tooltip>
-            </div>
-          </div>
+          <b-tooltip
+            label="Reservar livro"
+            type="is-dark"
+            position="is-left"
+            animated
+          >
+            <b-button
+              icon-left="file-document-edit-outline"
+              size="is-small"
+            />
+          </b-tooltip>
         </b-table-column>
       </template>
     </b-table>
@@ -81,16 +65,13 @@
 import { Button } from "buefy/dist/components/button";
 import { Dialog } from "buefy/dist/components/dialog";
 import { Input } from "buefy/dist/components/input";
-import { ModalProgrammatic } from "buefy/dist/components/modal";
 import { Table, TableColumn } from "buefy/dist/components/table";
-import { Toast } from "buefy/dist/components/toast";
 import { Tooltip } from "buefy/dist/components/tooltip";
 
 import { ajax } from "@/assets/js/functions";
-import Form from "@/components/admin/BookSaveForm";
 
 export default {
-  name: "AdminViewBooks",
+  name: "Books",
   components: {
     BButton: Button,
     BInput: Input,
@@ -138,61 +119,15 @@ export default {
         vm.fetchBooks(vm.pagination.current_page, term);
       }
     }, 500),
-    openBookStoreModal() {
-      ModalProgrammatic.open({
-        parent: this,
-        component: Form,
-        props: { method: "post" },
-        events: {
-          reload: async () => {
-            await this.fetchBooks();
-          }
-        },
-        hasModalCard: true,
-        canCancel: false
-      });
-    },
-    openBookEditModal(book) {
-      ModalProgrammatic.open({
-        parent: this,
-        component: Form,
-        props: { book, method: "put" },
-        events: {
-          reload: async () => {
-            await this.fetchBooks(this.pagination.current_page);
-          }
-        },
-        hasModalCard: true,
-        canCancel: false
-      });
-    },
-    confirmDelete(book) {
+    confirmReserve(book) {
       Dialog.confirm({
-        message: `Tem certeza de que quer apagar "${book.title}"?`,
+        message: `Reservar o livro "${book.title}"?`,
         cancelText: "Não",
         confirmText: "Sim",
         onConfirm: async () => {
-          await this.deleteBook(book.id);
+          return;
         }
       });
-    },
-    deleteBook(id) {
-      ajax("//localhost:8000/api/v1/books/" + id, null, "delete")
-        .then(() => {
-          this.fetchBooks(this.pagination.current_page);
-        })
-        .then(() => {
-          Toast.open({
-            message: "O registro foi apagado.",
-            type: "is-success"
-          });
-        })
-        .catch(err => {
-          Toast.open({
-            message: err,
-            type: "is-danger"
-          });
-        });
     }
   }
 };

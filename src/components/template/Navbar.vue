@@ -6,30 +6,7 @@
       </div>
       <div class="navbar-menu">
         <div class="navbar-start">
-          <router-link
-            :to="{ name: 'admin.view.dash' }"
-            class="navbar-item"
-            exact
-          >
-            <b-icon icon="home" size="is-small" />
-            <span>Home</span>
-          </router-link>
-          <router-link
-            :to="{ name: 'admin.view.books' }"
-            class="navbar-item"
-            exact
-          >
-            <b-icon icon="book-multiple" size="is-small" />
-            <span>Livros</span>
-          </router-link>
-          <router-link
-            :to="{ name: 'admin.view.users' }"
-            class="navbar-item"
-            exact
-          >
-            <b-icon icon="account-group" size="is-small" />
-            <span>Usuários</span>
-          </router-link>
+          <slot name="links" />
         </div>
         <div class="navbar-end">
           <b-button
@@ -49,13 +26,12 @@
 <script>
 import { Button } from "buefy/dist/components/button";
 import { Dialog } from "buefy/dist/components/dialog";
-import { Icon } from "buefy/dist/components/icon";
 
 import { mapActions } from "vuex";
 
 export default {
   name: "Navbar",
-  components: { BButton: Button, BIcon: Icon },
+  components: { BButton: Button },
   data() {
     return {
       loading: false
