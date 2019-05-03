@@ -15,7 +15,7 @@ export default [
             const { role } = loggedUser;
 
             if (role === "leitor") {
-              return "/main";
+              return "/library";
             } else if (role === "atendente") {
               return "/manage";
             }
@@ -26,9 +26,34 @@ export default [
         }
       },
       {
-        path: "/main",
+        path: "/library",
         meta: { role: "leitor" },
-        component: () => import("@/views/main/Home.vue")
+        component: () =>
+          import(/* webpackChunkName: 'library' */ "@/views/library/Home.vue"),
+        children: [
+          {
+            path: "",
+            redirect: "home"
+          },
+          {
+            path: "home",
+            name: "library.view.home",
+            meta: { role: "leitor" },
+            component: () =>
+              import(
+                /* webpackChunkName: 'library' */ "@/views/library/Main.vue"
+              )
+          },
+          {
+            path: "books",
+            name: "library.view.books",
+            meta: { role: "leitor" },
+            component: () =>
+              import(
+                /* webpackChunkName: 'library' */ "@/views/library/Books.vue"
+              )
+          }
+        ]
       },
       {
         path: "/manage",

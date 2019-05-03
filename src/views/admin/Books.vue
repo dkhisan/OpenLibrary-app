@@ -3,7 +3,11 @@
     <nav class="navbar">
       <div class="navbar-menu">
         <div class="navbar-start">
-          <b-input placeholder="Título do livro" icon="magnify" @input="capture" />
+          <b-input
+            placeholder="Título do livro"
+            icon="magnify"
+            @input="capture"
+          />
         </div>
         <div class="navbar-end">
           <b-button
@@ -105,7 +109,7 @@ export default {
     return {
       loading: true,
       books: [],
-      pagination: {},
+      pagination: {}
     };
   },
   methods: {
@@ -133,6 +137,7 @@ export default {
     capture(term) {
       this.handleSearch(term, this);
     },
+    // eslint-disable-next-line no-undef
     handleSearch: _.debounce((term, vm = this) => {
       if (term.length > 3) {
         vm.fetchBooks(vm.pagination.current_page, term);
@@ -182,17 +187,23 @@ export default {
           this.fetchBooks(this.pagination.current_page);
         })
         .then(() => {
-          Toast.open({
+          this.makeToast({
             message: "O registro foi apagado.",
             type: "is-success"
           });
         })
         .catch(err => {
-          Toast.open({
+          this.makeToast({
             message: err,
             type: "is-danger"
           });
         });
+    },
+    makeToast({ message, type }) {
+      Toast.open({
+        message,
+        type
+      });
     }
   }
 };

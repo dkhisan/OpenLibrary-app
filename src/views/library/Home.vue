@@ -4,13 +4,15 @@
       <navbar>
         <template slot="links">
           <router-link
+            :to="{ name: 'library.view.home' }"
             class="navbar-item"
             exact
           >
-            <b-icon icon="house" size="is-small" />
+            <b-icon icon="home" size="is-small" />
             <span>Home</span>
           </router-link>
           <router-link
+            :to="{ name: 'library.view.books' }"
             class="navbar-item"
             exact
           >
