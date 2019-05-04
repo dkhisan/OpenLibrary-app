@@ -35,7 +35,11 @@
         <b-table-column field="year" label="Publicação" numeric centered>
           {{ props.row.year }}
         </b-table-column>
-        <b-table-column field="state" label="Status">
+        <b-table-column
+          field="state"
+          label="Status"
+          :visible="!!props.row.state"
+        >
           <b-tag type="is-success">{{ props.row.state }}</b-tag>
         </b-table-column>
         <b-table-column label="Ações" centered>
@@ -48,7 +52,7 @@
             <b-button
               icon-left="bookmark"
               size="is-small"
-              :disabled="props.row.state !== 'disponível'"
+              :disabled="!!props.row.state && props.row.state !== 'disponível'"
               @click="confirmReserve(props.row)"
             />
           </b-tooltip>
@@ -136,10 +140,12 @@ export default {
     },
     // eslint-disable-next-line no-undef
     handleSearch: _.debounce(vm => {
-      if (vm.title.length > 3) {
+      if (vm.title.length === 0) {
+        vm.available = true;
+        vm.fetchBooks();
+      } else if (vm.title.length > 3) {
         vm.available = false;
-        vm.my_reserves = false;
-        vm.fetchBooks(vm.pagination.current_page);
+        vm.fetchBooks();
       }
     }, 500),
     confirmReserve(book) {
