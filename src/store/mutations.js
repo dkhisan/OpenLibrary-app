@@ -10,7 +10,7 @@ export default {
     state.loggedUser = {};
   },
   init: (state, cookies) => {
-    state.accessToken = cookies.token;
-    state.loggedUser = cookies.user;
+    state.accessToken = cookies.accessToken;
+    state.loggedUser = cookies.loggedUser;
   }
 };

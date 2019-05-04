@@ -9,9 +9,6 @@
             @input="capture"
           />
         </div>
-        <div class="navbar-end">
-          <b-switch v-model="my_reserves">Minhas reservas</b-switch>
-        </div>
       </div>
     </nav>
     <b-table
@@ -38,7 +35,10 @@
         <b-table-column field="year" label="Publicação" numeric centered>
           {{ props.row.year }}
         </b-table-column>
-        <b-table-column label="Ações" centered v-if="!my_reserves">
+        <b-table-column field="state" label="Status">
+          <b-tag type="is-success">{{ props.row.state }}</b-tag>
+        </b-table-column>
+        <b-table-column label="Ações" centered>
           <b-tooltip
             label="Reservar livro"
             type="is-dark"
@@ -48,10 +48,22 @@
             <b-button
               icon-left="bookmark"
               size="is-small"
+              :disabled="props.row.state !== 'disponível'"
               @click="confirmReserve(props.row)"
             />
           </b-tooltip>
         </b-table-column>
+      </template>
+
+      <template slot="empty">
+        <section class="section">
+          <div class="content has-text-grey has-text-centered">
+            <p>
+              <b-icon icon="emoticon-sad-outline" size="is-large" />
+            </p>
+            <p>Nenhum resultado.</p>
+          </div>
+        </section>
       </template>
     </b-table>
   </section>
@@ -60,9 +72,10 @@
 <script>
 import { Button } from "buefy/dist/components/button";
 import { Dialog } from "buefy/dist/components/dialog";
+import { Icon } from "buefy/dist/components/icon";
 import { Input } from "buefy/dist/components/input";
-import { Switch } from "buefy/dist/components/switch";
 import { Table, TableColumn } from "buefy/dist/components/table";
+import { Tag } from "buefy/dist/components/tag";
 import { Toast } from "buefy/dist/components/toast";
 import { Tooltip } from "buefy/dist/components/tooltip";
 
@@ -73,16 +86,15 @@ export default {
   name: "Books",
   components: {
     BButton: Button,
+    BIcon: Icon,
     BInput: Input,
-    BSwitch: Switch,
     BTable: Table,
     BTableColumn: TableColumn,
+    BTag: Tag,
     BTooltip: Tooltip
   },
-  watch: {
-    my_reserves() {
-      this.fetchBooks();
-    }
+  computed: {
+    ...mapGetters(["loggedUser"])
   },
   created() {
     this.fetchBooks();
@@ -90,19 +102,18 @@ export default {
   data() {
     return {
       loading: true,
-      my_reserves: false,
+      available: true,
+      title: "",
       books: [],
       pagination: {}
     };
   },
   methods: {
-    ...mapGetters(["loggedUser"]),
-    fetchBooks(page = 1, title = "") {
+    fetchBooks(page = 1) {
       this.loading = true;
-      const url = `//localhost:8000/api/v1/books?is_available=${!this
-        .my_reserves}&my_reserves=${this.my_reserves}&page=${page}${
-        title.length ? `&title=${title}` : title
-      }`;
+      const url = `//localhost:8000/api/v1/books?is_available=${
+        this.available
+      }&page=${page}${this.title.length ? `&title=${this.title}` : this.title}`;
 
       ajax(url, null)
         .then(res => {
@@ -111,7 +122,7 @@ export default {
           this.pagination = { total, per_page, current_page };
         })
         .catch(err => {
-          this.data = [];
+          this.books = [];
           this.pagination = {};
           throw err;
         })
@@ -120,17 +131,20 @@ export default {
         });
     },
     capture(term) {
-      this.handleSearch(term, this);
+      this.title = term;
+      this.handleSearch(this);
     },
     // eslint-disable-next-line no-undef
-    handleSearch: _.debounce((term, vm = this) => {
-      if (term.length > 3) {
-        vm.fetchBooks(vm.pagination.current_page, term);
+    handleSearch: _.debounce(vm => {
+      if (vm.title.length > 3) {
+        vm.available = false;
+        vm.my_reserves = false;
+        vm.fetchBooks(vm.pagination.current_page);
       }
     }, 500),
     confirmReserve(book) {
       const { id: book_id, title } = book;
-      const { id: user_id } = this.loggedUser();
+      const { id: user_id } = this.loggedUser;
       const rent = {
         user_id,
         book_id,
@@ -149,8 +163,8 @@ export default {
               this.fetchBooks(current_page);
             })
             .then(() => {
-              this.makeToast({
-                message: `Reserva de ${title} foi realizada.`,
+              Dialog.alert({
+                message: `Reserva de "${title}" foi realizada.\nAtenção, você tem um dia para retirar o livro ou então perderá sua reserva.`,
                 type: "is-success"
               });
             })
