@@ -163,10 +163,11 @@ export default {
           const message =
             this.method === "post"
               ? "Cadastro realizado"
-              : "Informações do usuário atualizas";
+              : "Informações do usuário atualizadas";
           Toast.open({
             message,
-            type: "is-success"
+            type: "is-success",
+            duration: 5000
           });
         })
         .then(() => {

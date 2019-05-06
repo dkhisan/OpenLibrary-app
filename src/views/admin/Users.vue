@@ -138,8 +138,10 @@ export default {
     capture(term) {
       this.handleSearch(term, this);
     },
-    handleSearch: _.debounce((term, vm = this) => {
-      if (term.length > 3) {
+    handleSearch: _.debounce((term, vm) => {
+      if (term.length === 0) {
+        vm.fetchUsers();
+      } else if (term.length > 3) {
         vm.fetchUsers(vm.pagination.current_page, term);
       }
     }, 500),
@@ -189,7 +191,8 @@ export default {
         .then(() => {
           Toast.open({
             message: "O registro foi apagado.",
-            type: "is-success"
+            type: "is-success",
+            duration: 5000
           });
         })
         .catch(err => {

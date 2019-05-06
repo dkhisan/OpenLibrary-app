@@ -17,7 +17,7 @@ export default [
             if (role === "leitor") {
               return "/library";
             } else if (role === "atendente") {
-              return "/manage";
+              return "/service";
             }
             return "/admin";
           } catch (e) {
@@ -56,8 +56,34 @@ export default [
         ]
       },
       {
-        path: "/manage",
-        meta: { role: "atendente" }
+        path: "/service",
+        meta: { role: "atendente" },
+        component: () =>
+          import(/* webpackChunkName: 'service' */ "@/views/service/Home.vue"),
+        children: [
+          {
+            path: "",
+            redirect: "dashboard"
+          },
+          {
+            path: "dashboard",
+            name: "service.view.dash",
+            meta: { role: "atendente" },
+            component: () =>
+              import(
+                /* webpackChunkName: 'service' */ "@/views/service/Dashboard.vue"
+              )
+          },
+          {
+            path: "books",
+            name: "service.view.books",
+            meta: { role: "atendente" },
+            component: () =>
+              import(
+                /* webpackChunkName: 'service' */ "@/views/service/Books.vue"
+              )
+          }
+        ]
       },
       {
         path: "/admin",

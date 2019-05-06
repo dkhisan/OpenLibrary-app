@@ -138,9 +138,11 @@ export default {
       this.handleSearch(term, this);
     },
     // eslint-disable-next-line no-undef
-    handleSearch: _.debounce((term, vm = this) => {
-      if (term.length > 3) {
-        vm.fetchBooks(vm.pagination.current_page, term);
+    handleSearch: _.debounce((term, vm) => {
+      if (!term.length) {
+        vm.fetchBooks();
+      } else if (term.length > 3) {
+        vm.fetchBooks(1, term);
       }
     }, 500),
     openBookStoreModal() {
@@ -202,7 +204,8 @@ export default {
     makeToast({ message, type }) {
       Toast.open({
         message,
-        type
+        type,
+        duration: 5000
       });
     }
   }

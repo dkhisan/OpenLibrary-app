@@ -43,19 +43,42 @@
           <b-tag type="is-success">{{ props.row.state }}</b-tag>
         </b-table-column>
         <b-table-column label="Ações" centered>
-          <b-tooltip
-            label="Reservar livro"
-            type="is-dark"
-            position="is-left"
-            animated
-          >
-            <b-button
-              icon-left="bookmark"
-              size="is-small"
-              :disabled="!!props.row.state && props.row.state !== 'disponível'"
-              @click="confirmReserve(props.row)"
-            />
-          </b-tooltip>
+          <div class="level">
+            <div class="level-item">
+              <b-tooltip
+                label="Mais info"
+                type="is-dark"
+                position="is-left"
+                animated
+              >
+                <b-button icon-left="eye" size="is-small" />
+              </b-tooltip>
+            </div>
+            <div class="level-item">
+              <b-tooltip
+                label="Alugar livro"
+                type="is-dark"
+                position="is-left"
+                animated
+                v-if="props.row.state !== 'alugado'"
+              >
+                <b-button
+                  icon-left="bookmark-plus"
+                  size="is-small"
+                  @click="openRentABookModal(props.row)"
+                />
+              </b-tooltip>
+              <b-tooltip
+                label="Devolver livro"
+                type="is-dark"
+                position="is-left"
+                animated
+                v-else
+              >
+                <b-button icon-left="bookmark-minus" size="is-small" />
+              </b-tooltip>
+            </div>
+          </div>
         </b-table-column>
       </template>
 
@@ -75,19 +98,18 @@
 
 <script>
 import { Button } from "buefy/dist/components/button";
-import { Dialog } from "buefy/dist/components/dialog";
 import { Icon } from "buefy/dist/components/icon";
 import { Input } from "buefy/dist/components/input";
+import { ModalProgrammatic } from "buefy/dist/components/modal";
 import { Table, TableColumn } from "buefy/dist/components/table";
 import { Tag } from "buefy/dist/components/tag";
-import { Toast } from "buefy/dist/components/toast";
 import { Tooltip } from "buefy/dist/components/tooltip";
 
 import { ajax } from "@/assets/js/functions";
-import { mapGetters } from "vuex";
+import Form from "@/components/service/BookRentForm";
 
 export default {
-  name: "LibraryViewBooks",
+  name: "ServiceViewBooks",
   components: {
     BButton: Button,
     BIcon: Icon,
@@ -97,9 +119,6 @@ export default {
     BTag: Tag,
     BTooltip: Tooltip
   },
-  computed: {
-    ...mapGetters(["loggedUser"])
-  },
   created() {
     this.fetchBooks();
   },
@@ -107,16 +126,17 @@ export default {
     return {
       loading: true,
       available: true,
+      title: "",
       books: [],
       pagination: {}
     };
   },
   methods: {
-    fetchBooks(page = 1) {
+    fetchBooks(page = 1, title = "") {
       this.loading = true;
-      const url = `//localhost:8000/api/v1/books?is_available=${
-        this.available
-      }&page=${page}${this.title.length ? `&title=${this.title}` : this.title}`;
+      const url = `//localhost:8000/api/v1/books?page=${page}${
+        title.length ? `&title=${title}` : title
+      }`;
 
       ajax(url, null)
         .then(res => {
@@ -134,59 +154,28 @@ export default {
         });
     },
     capture(term) {
-      this.title = term;
-      this.handleSearch(this);
+      this.handleSearch(term, this);
     },
     // eslint-disable-next-line no-undef
-    handleSearch: _.debounce(vm => {
-      if (vm.title.length === 0) {
-        vm.available = true;
+    handleSearch: _.debounce((term, vm) => {
+      if (!term.length) {
         vm.fetchBooks();
-      } else if (vm.title.length > 3) {
-        vm.available = false;
-        vm.fetchBooks();
+      } else if (term.length > 3) {
+        vm.fetchBooks(1, term);
       }
     }, 500),
-    confirmReserve(book) {
-      const { id: book_id, title } = book;
-      const { id: user_id } = this.loggedUser;
-      const rent = {
-        user_id,
-        book_id,
-        state: "reservado"
-      };
-
-      Dialog.confirm({
-        message: `Reservar o livro "${title}"?`,
-        cancelText: "Não",
-        confirmText: "Sim",
-        onConfirm: async () => {
-          await ajax("//localhost:8000/api/v1/rents", rent, "post")
-            .then(() => {
-              const { current_page } = this.pagination;
-
-              this.fetchBooks(current_page);
-            })
-            .then(() => {
-              Dialog.alert({
-                message: `Reserva de "${title}" foi realizada.\nAtenção, você tem um dia para retirar o livro ou então perderá sua reserva.`,
-                type: "is-success"
-              });
-            })
-            .catch(message => {
-              this.makeToast({
-                message,
-                type: "is-danger"
-              });
-            });
-        }
-      });
-    },
-    makeToast({ message, type }) {
-      Toast.open({
-        message,
-        type,
-        duration: 5000
+    openRentABookModal(book) {
+      ModalProgrammatic.open({
+        parent: this,
+        component: Form,
+        props: { book },
+        events: {
+          reload: () => {
+            this.fetchBooks(this.pagination.current_page)
+          }
+        },
+        hasModalCard: true,
+        canCancel: false
       });
     }
   }

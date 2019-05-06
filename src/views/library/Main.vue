@@ -63,6 +63,11 @@
         <b-table-column field="year" label="Publicação" numeric centered>
           {{ props.row.year }}
         </b-table-column>
+        <b-table-column field="time" label="Tempo restante" centered>
+          <b-tag type="is-info">
+            {{ remaining(props.row.time) }} dia(s)
+          </b-tag>
+        </b-table-column>
       </template>
 
       <template slot="empty">
@@ -82,6 +87,7 @@
 <script>
 import { Icon } from "buefy/dist/components/icon";
 import { Table, TableColumn } from "buefy/dist/components/table";
+import { Tag } from "buefy/dist/components/tag";
 
 import { ajax } from "@/assets/js/functions";
 
@@ -90,7 +96,8 @@ export default {
   components: {
     BIcon: Icon,
     BTable: Table,
-    BTableColumn: TableColumn
+    BTableColumn: TableColumn,
+    BTag: Tag
   },
   async created() {
     await this.fetchBooks(this.reserves);
@@ -133,6 +140,9 @@ export default {
         .finally(() => {
           table.loading = false;
         });
+    },
+    remaining(time) {
+      return moment(time).diff(moment(), "days");
     }
   }
 };

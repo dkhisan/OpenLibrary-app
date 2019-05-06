@@ -72,3 +72,10 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+span.icon {
+  margin-left: -0.25em;
+  margin-right: 0.25em;
+}
+</style>

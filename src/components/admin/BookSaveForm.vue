@@ -116,6 +116,7 @@ export default {
         this.errors.description = required;
       }
 
+      // eslint-disable-next-line no-undef
       if (_.isEmpty(this.errors)) this.saveBook();
     },
     saveBook() {
@@ -129,7 +130,8 @@ export default {
               : "Informações do livro atualizas";
           Toast.open({
             message,
-            type: "is-success"
+            type: "is-success",
+            duration: 5000
           });
         })
         .then(() => {
